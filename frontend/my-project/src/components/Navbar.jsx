@@ -1,18 +1,22 @@
-// navbar component for all the pages hold icon ,mode ,profile,logout button
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../store/UseAuthStore";
 import { LogOut, MessageSquare, Moon, Sun, User } from "lucide-react";
 
 const Navbar = () => {
+  // Get logout function and authenticated user from auth store
   const { logout, authUser } = useAuth();
+
+  // State to track if dark mode is enabled, initialized from localStorage
   const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") === "dark");
 
+  // Effect to update document attribute and localStorage whenever theme changes
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
     localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
 
+  // Toggle between dark and light mode
   const toggleTheme = () => setIsDark(!isDark);
 
   return (
@@ -20,9 +24,10 @@ const Navbar = () => {
       className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 
     backdrop-blur-lg bg-base-100/80"
     >
+      {/* Container for navbar content */}
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
-          {/* Logo */}
+          {/* Left section: Logo and site name */}
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
               <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -32,9 +37,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Buttons */}
+          {/* Right section: Theme toggle, profile and logout */}
           <div className="flex items-center gap-2">
-            {/* Theme Toggle Button */}
+            {/* Theme toggle button */}
             <button
               onClick={toggleTheme}
               className="btn btn-sm btn-ghost gap-2"
@@ -44,7 +49,7 @@ const Navbar = () => {
               <span className="hidden sm:inline">{isDark ? "Light Mode" : "Dark Mode"}</span>
             </button>
 
-            {/* If Logged In */}
+            {/* Show profile link and logout button if user is authenticated */}
             {authUser && (
               <>
                 <Link to={"/profile"} className="btn btn-sm gap-2">

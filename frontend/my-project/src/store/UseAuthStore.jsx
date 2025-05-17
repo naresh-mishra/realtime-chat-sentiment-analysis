@@ -1,13 +1,13 @@
-// creating the auth store by help of contextApi holding user connection -authetication,calling backend and various other functioanlity
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { axiosInstance } from "../lib/axios";
-import toast from "react-hot-toast";
+import { axiosInstance } from "../lib/axios";  // pre-configured axios instance
+import toast from "react-hot-toast";           // toast notifications
 import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // User and loading states
   const [authUser, setAuthUser] = useState(null);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [socket, setSocket] = useState(null);
 
+  // Connect socket with current userId query param
   const connectSocket = useCallback(() => {
     if (!authUser) return;
 
@@ -28,12 +29,13 @@ export const AuthProvider = ({ children }) => {
     });
 
     newSocket.on("getOnlineUsers", (userIds) => {
-      setOnlineUsers(userIds);
+      setOnlineUsers(userIds);  // update online users list from server event
     });
 
     newSocket.connect();
   }, [authUser]);
 
+  // Disconnect socket cleanly
   const disconnectSocket = useCallback(() => {
     if (socket?.connected) {
       socket.disconnect();
@@ -41,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [socket]);
 
+  // Check if user is authenticated by backend call
   const checkAuth = useCallback(async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
@@ -53,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // Signup function
   const signup = async (data) => {
     setIsSigningUp(true);
     try {
@@ -66,6 +70,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Login function
   const login = async (data) => {
     setIsLoggingIn(true);
     try {
@@ -79,17 +84,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout function
   const logout = async () => {
     try {
       await axiosInstance.post("/auth/logout");
       setAuthUser(null);
       toast.success("Logged out successfully");
-      disconnectSocket();
+      disconnectSocket();  // close socket connection on logout
     } catch (error) {
       toast.error(error.response?.data?.message || "Logout failed");
     }
   };
 
+  // Update profile function
   const updateProfile = async (data) => {
     setIsUpdatingProfile(true);
     try {
@@ -104,11 +111,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Initial auth check on mount + cleanup socket on unmount
   useEffect(() => {
     checkAuth();
     return () => disconnectSocket();
   }, [checkAuth, disconnectSocket]);
 
+  // Connect socket whenever user logs in and socket is not yet connected
   useEffect(() => {
     if (authUser && !socket) {
       connectSocket();
@@ -139,4 +148,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook to consume the auth context easily
 export const useAuth = () => useContext(AuthContext);

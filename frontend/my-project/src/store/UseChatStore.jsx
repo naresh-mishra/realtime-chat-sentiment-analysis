@@ -6,15 +6,16 @@ import { useAuth } from "./UseAuthStore";
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
-  const [users, setUsers] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isUsersLoading, setIsUsersLoading] = useState(false);
-  const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+  const [users, setUsers] = useState([]); // List of users available for chat
+  const [messages, setMessages] = useState([]); // Messages exchanged with selected user
+  const [selectedUser, setSelectedUser] = useState(null); // Currently selected user to chat with
+  const [isUsersLoading, setIsUsersLoading] = useState(false); // Loading state for users
+  const [isMessagesLoading, setIsMessagesLoading] = useState(false); // Loading state for messages
 
-  const { socket } = useAuth();
-  const messageListenerRef = useRef(null); // reference for cleanup
+  const { socket } = useAuth(); // Socket instance from auth context
+  const messageListenerRef = useRef(null); // Store message listener callback for cleanup
 
+  // Fetch all users except logged-in user
   const getUsers = useCallback(async () => {
     setIsUsersLoading(true);
     try {
@@ -27,6 +28,7 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
+  // Fetch messages between logged-in user and selected user
   const getMessages = useCallback(async (userId) => {
     setIsMessagesLoading(true);
     try {
@@ -39,6 +41,7 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
+  // Send message to selected user
   const sendMessage = useCallback(async (messageData) => {
     try {
       const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData);
@@ -48,25 +51,29 @@ export const ChatProvider = ({ children }) => {
     }
   }, [selectedUser]);
 
+  // Subscribe to real-time new messages via socket
   const subscribeToMessages = useCallback(() => {
     if (!socket || !selectedUser) return;
 
     const handleNewMessage = (newMessage) => {
+      // Check if the message is from the selected user
       const isMessageFromSelectedUser = newMessage.senderId === selectedUser._id;
       if (!isMessageFromSelectedUser) return;
       
       setMessages((prev) => {
+        // Avoid adding duplicate messages
         if (prev.some((msg) => msg._id === newMessage._id)) {
-          return prev; // Duplicate found, skip adding
+          return prev;
         }
         return [...prev, newMessage];
       });
     };
 
     socket.on("newMessage", handleNewMessage);
-    messageListenerRef.current = handleNewMessage;
+    messageListenerRef.current = handleNewMessage; // Save listener for cleanup
   }, [socket, selectedUser]);
 
+  // Unsubscribe from new message event to avoid leaks
   const unsubscribeFromMessages = useCallback(() => {
     if (socket && messageListenerRef.current) {
       socket.off("newMessage", messageListenerRef.current);
@@ -74,7 +81,7 @@ export const ChatProvider = ({ children }) => {
     }
   }, [socket]);
 
-  // Auto subscribe/unsubscribe on selected user change
+  // Auto subscribe/unsubscribe when selected user or socket changes
   useEffect(() => {
     subscribeToMessages();
     return () => unsubscribeFromMessages();

@@ -6,83 +6,85 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChat();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChat(); // Chat store data and actions
 
-  const { onlineUsers } = useAuth();
-  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const { onlineUsers } = useAuth(); // Auth store online users
+  const [showOnlineOnly, setShowOnlineOnly] = useState(false); // Toggle to show only online users
 
   useEffect(() => {
-    getUsers();
+    getUsers(); // Fetch users on component mount or getUsers change
   }, [getUsers]);
 
+  // Filter users based on online status toggle
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
-  if (isUsersLoading) return <SidebarSkeleton />;
+  if (isUsersLoading) return <SidebarSkeleton />; // Show loading skeleton if users loading
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
-          <Users className="size-6" />
-          <span className="font-medium hidden lg:block">Contacts</span>
+          <Users className="size-6" /> {/* Icon for contacts */}
+          <span className="font-medium hidden lg:block">Contacts</span> {/* Title */}
         </div>
-        {/* TODO: Online filter toggle */}
+        {/* Online filter toggle section */}
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
               type="checkbox"
-              checked={showOnlineOnly}
-              onChange={(e) => setShowOnlineOnly(e.target.checked)}
+              checked={showOnlineOnly} // Checkbox state
+              onChange={(e) => setShowOnlineOnly(e.target.checked)} // Update toggle state
               className="checkbox checkbox-sm"
             />
             <span className="text-sm">Show online only</span>
           </label>
-          <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+          <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span> {/* Number online */}
         </div>
       </div>
 
       <div className="overflow-y-auto w-full py-3">
         {filteredUsers.map((user) => (
           <button
-            key={user._id}
-            onClick={() => setSelectedUser(user)}
+            key={user._id} // Unique key for list
+            onClick={() => setSelectedUser(user)} // Set selected user on click
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors
-              ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""} // Highlight selected user
             `}
           >
             <div className="relative mx-auto lg:mx-0">
               <img
-                src={user.profilePic || "/avatar.png"}
+                src={user.profilePic || "/avatar.png"} // User profile image or default
                 alt={user.name}
                 className="size-12 object-cover rounded-full"
               />
               {onlineUsers.includes(user._id) && (
                 <span
                   className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
+                  rounded-full ring-2 ring-zinc-900" // Online status indicator
                 />
               )}
             </div>
 
             {/* User info - only visible on larger screens */}
             <div className="hidden lg:block text-left min-w-0">
-              <div className="font-medium truncate">{user.fullName}</div>
+              <div className="font-medium truncate">{user.fullName}</div> {/* User name */}
               <div className="text-sm text-zinc-400">
-                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                {onlineUsers.includes(user._id) ? "Online" : "Offline"} {/* Online/offline status */}
               </div>
             </div>
           </button>
         ))}
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No online users</div>
-        )} 
-       </div>
+          <div className="text-center text-zinc-500 py-4">No online users</div> // Show message if no users
+        )}
+      </div>
     </aside>
   );
 };
+
 export default Sidebar;
