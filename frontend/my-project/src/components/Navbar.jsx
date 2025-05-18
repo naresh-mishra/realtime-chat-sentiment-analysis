@@ -2,71 +2,80 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../store/UseAuthStore";
 import { LogOut, MessageSquare, Moon, Sun, User } from "lucide-react";
+import { motion } from "framer-motion";
+
+// Wrap Link for framer motion animations
+const MotionLink = motion(Link);
 
 const Navbar = () => {
-  // Get logout function and authenticated user from auth store
   const { logout, authUser } = useAuth();
-
-  // State to track if dark mode is enabled, initialized from localStorage
   const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") === "dark");
 
-  // Effect to update document attribute and localStorage whenever theme changes
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
     localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
 
-  // Toggle between dark and light mode
   const toggleTheme = () => setIsDark(!isDark);
 
   return (
-    <header
+    <motion.header
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 120, damping: 20 }}
       className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 
-    backdrop-blur-lg bg-base-100/80"
+      backdrop-blur-lg bg-base-100/80"
     >
-      {/* Container for navbar content */}
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
-          {/* Left section: Logo and site name */}
-          <div className="flex items-center gap-8">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
               <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-primary" />
               </div>
               <h1 className="text-lg font-bold">QuickChat</h1>
             </Link>
-          </div>
+          </motion.div>
 
-          {/* Right section: Theme toggle, profile and logout */}
           <div className="flex items-center gap-2">
-            {/* Theme toggle button */}
-            <button
+            <motion.button
               onClick={toggleTheme}
               className="btn btn-sm btn-ghost gap-2"
               aria-label="Toggle Theme"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
               {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
               <span className="hidden sm:inline">{isDark ? "Light Mode" : "Dark Mode"}</span>
-            </button>
+            </motion.button>
 
-            {/* Show profile link and logout button if user is authenticated */}
             {authUser && (
               <>
-                <Link to={"/profile"} className="btn btn-sm gap-2">
+                <MotionLink
+                  to={"/profile"}
+                  className="btn btn-sm gap-2"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
                   <User className="size-5" />
                   <span className="hidden sm:inline">Profile</span>
-                </Link>
+                </MotionLink>
 
-                <button className="flex gap-2 items-center" onClick={logout}>
+                <motion.button
+                  className="flex gap-2 items-center"
+                  onClick={logout}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
                   <LogOut className="size-5" />
                   <span className="hidden sm:inline">Logout</span>
-                </button>
+                </motion.button>
               </>
             )}
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 };
 

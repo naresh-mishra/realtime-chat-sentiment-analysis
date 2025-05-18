@@ -1,4 +1,17 @@
+Real-Time Chat Application with Sentiment Analysis
+
+[VIDEO DEMO](https://drive.google.com/file/d/1Pg9qOdARKAHiNJg84fIkBvtWRkUHNFAk/view?usp=drivesdk)
+[FIGMA UI DESIGN](https://www.figma.com/design/UPnVdhko3Lagl01Qo08tEI/RealTimeChatApp?node-id=0-1&p=f&t=AP4jgmOSOZxIEf8z-0)
+[WIREFRAME](https://www.figma.com/design/6Rztawzah3UokZEy9gjvln/wireframes?node-id=0-1&p=f&t=4tanRcDKYSkw9P7P-0)
+
+A real-time chat application with built-in sentiment analysis using React.js, Socket.IO, MongoDB, and Node-NLP
+
+# LOGIN PAGE
 ![Login Screen](frontend/my-project/src/assets/login.png)
+
+# REAL_TIME_CHAT PAGE 
+![Login Screen](frontend/my-project/src/assets/chat.png)
+
 # Real-Time Chat Application with Sentiment Analysis
 
 A real-time chat application with built-in sentiment analysis using React.js, Socket.io, MongoDB, and Node-NLP.
