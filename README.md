@@ -46,7 +46,7 @@ A real-time chat application with built-in sentiment analysis using React.js, So
 
 ## How to Run
 1. Clone the repository
-   git clone https://github.com/yourusername/realtimechatAPI.git
+   git clone https://github.com/naresh-mishra/realtime-chat-sentiment-analysis.git
 2. Change Directory 
       cd realtimechatAPI
 3. Setup backend
